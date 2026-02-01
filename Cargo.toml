@@ -1,0 +1,14 @@
+[package]
+name = "cow_map"
+version = "0.1.0"
+edition = "2024"
+description = "A map that starts as static PHF (compile-time) and promotes to HashMap on first write"
+readme = "README.md"
+license = "Apache-2.0"
+repository = "https://github.com/TiernanDeFranco/cow_map"
+keywords = ["phf", "hashmap", "cow", "static", "cow_map", "cow_hashmap"]
+categories = ["data-structures"]
+
+[dependencies]
+phf = { version = "0.13", features = ["macros"] }
+phf_shared = "0.13"
