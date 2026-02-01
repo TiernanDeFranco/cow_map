@@ -33,6 +33,9 @@ use std::iter::FromIterator;
 use phf::map::Entries;
 use phf_shared::PhfBorrow;
 
+
+pub use phf;
+
 /// Copy-on-write map: either a read-only static table or an owned `HashMap`.
 #[derive(Clone)]
 pub enum CowMap<K, V>
@@ -368,8 +371,8 @@ where
 
 /// Creates a borrowed `CowMap` from key–value pairs at compile time.
 ///
-/// Requires `phf` with the `macros` feature. You must specify the value type
-/// (keys are `&str` by default).
+/// You only need `cow_map` in your dependencies; `phf` is re-exported for the
+/// macro. You must specify the value type (keys are `&str` by default).
 ///
 /// # One map (short form)
 ///
@@ -402,15 +405,15 @@ where
 #[macro_export]
 macro_rules! cow_map {
     ($name:ident : $v:ty => $($k:expr => $val:expr),* $(,)?) => {{
-        static $name: phf::Map<&'static str, $v> = phf::phf_map! { $($k => $val),* };
+        static $name: $crate::phf::Map<&'static str, $v> = $crate::phf::phf_map! { $($k => $val),* };
         $crate::CowMap::from_static(&$name)
     }};
     ($v:ty => $($k:expr => $val:expr),* $(,)?) => {{
-        static __COW_MAP: phf::Map<&'static str, $v> = phf::phf_map! { $($k => $val),* };
+        static __COW_MAP: $crate::phf::Map<&'static str, $v> = $crate::phf::phf_map! { $($k => $val),* };
         $crate::CowMap::from_static(&__COW_MAP)
     }};
     ($k:ty, $v:ty => $($key:expr => $val:expr),* $(,)?) => {{
-        static __COW_MAP: phf::Map<$k, $v> = phf::phf_map! { $($key => $val),* };
+        static __COW_MAP: $crate::phf::Map<$k, $v> = $crate::phf::phf_map! { $($key => $val),* };
         $crate::CowMap::from_static(&__COW_MAP)
     }};
 }

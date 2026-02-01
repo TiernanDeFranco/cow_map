@@ -15,7 +15,6 @@ Add to your `Cargo.toml`:
 ```toml
 [dependencies]
 cow_map = "0.1"
-phf = { version = "0.13", features = ["macros"] }
 ```
 
 ### Quick start
