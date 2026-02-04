@@ -8,22 +8,12 @@
 //!
 //! # Creating a CowMap
 //!
-//! Use the [`cow_map!`] macro. One map in this scope:
+//! Use the [`cow_map!`] macro. You must give the static a name (the PHF lives in a static):
 //!
 //! ```rust
 //! use cow_map::cow_map;
-//! let config = cow_map!(i32 => "timeout" => 30, "port" => 8080);
+//! let config = cow_map!(CONFIG: i32 => "timeout" => 30, "port" => 8080);
 //! assert!(config.is_borrowed());
-//! ```
-//!
-//! Several maps in the same scope — give each a name so each gets its own static:
-//!
-//! ```rust
-//! use cow_map::cow_map;
-//! let defaults = cow_map!(DEFAULTS: i32 => "timeout" => 30);
-//! let other    = cow_map!(OTHER: i32 => "x" => 1, "y" => 2);
-//! assert_eq!(defaults.get("timeout"), Some(&30));
-//! assert_eq!(other.get("x"), Some(&1));
 //! ```
 
 use std::borrow::Borrow;
@@ -371,50 +361,24 @@ where
 
 /// Creates a borrowed `CowMap` from key–value pairs at compile time.
 ///
-/// You only need `cow_map` in your dependencies; `phf` is re-exported for the
-/// macro. You must specify the value type (keys are `&str` by default).
-///
-/// # One map (short form)
+/// Requires a **name** for the static PHF (e.g. `CONFIG`). Value type required; keys are `&str` by default.
 ///
 /// ```rust
 /// use cow_map::cow_map;
-/// let m = cow_map!(i32 => "a" => 1, "b" => 2);
+/// let m = cow_map!(MY_MAP: i32 => "a" => 1, "b" => 2);
 /// assert_eq!(m.get("a"), Some(&1));
 /// ```
 ///
-/// # Several maps in one scope (named form)
-///
-/// The short form expands to a static named `__COW_MAP`. Two short-form calls
-/// in the same scope would define `__COW_MAP` twice → compile error. Give each
-/// map a name so each gets its own static:
-///
-/// ```rust
-/// use cow_map::cow_map;
-/// let defaults = cow_map!(DEFAULTS: i32 => "timeout" => 30, "port" => 8080);
-/// let other    = cow_map!(OTHER: i32 => "x" => 1, "y" => 2);
-/// assert_eq!(defaults.get("timeout"), Some(&30));
-/// ```
-///
-/// # Key and value types
-///
-/// ```rust
-/// use cow_map::cow_map;
-/// let m = cow_map!(&str, i32 => "timeout" => 30, "port" => 8080);
-/// assert_eq!(m.get("timeout"), Some(&30));
-/// ```
+/// With key and value types: `cow_map!(NAME: &str, i32 => "k" => 1, ...)`.
 #[macro_export]
 macro_rules! cow_map {
     ($name:ident : $v:ty => $($k:expr => $val:expr),* $(,)?) => {{
         static $name: $crate::phf::Map<&'static str, $v> = $crate::phf::phf_map! { $($k => $val),* };
         $crate::CowMap::from_static(&$name)
     }};
-    ($v:ty => $($k:expr => $val:expr),* $(,)?) => {{
-        static __COW_MAP: $crate::phf::Map<&'static str, $v> = $crate::phf::phf_map! { $($k => $val),* };
-        $crate::CowMap::from_static(&__COW_MAP)
-    }};
-    ($k:ty, $v:ty => $($key:expr => $val:expr),* $(,)?) => {{
-        static __COW_MAP: $crate::phf::Map<$k, $v> = $crate::phf::phf_map! { $($key => $val),* };
-        $crate::CowMap::from_static(&__COW_MAP)
+    ($name:ident : $k:ty, $v:ty => $($key:expr => $val:expr),* $(,)?) => {{
+        static $name: $crate::phf::Map<$k, $v> = $crate::phf::phf_map! { $($key => $val),* };
+        $crate::CowMap::from_static(&$name)
     }};
 }
 
@@ -501,8 +465,8 @@ mod tests {
     }
 
     #[test]
-    fn cow_map_macro_direct_init() {
-        let map = cow_map!(i32 => "x" => 10, "y" => 20);
+    fn cow_map_macro_named_init() {
+        let map = cow_map!(DIRECT_INIT: i32 => "x" => 10, "y" => 20);
         assert!(map.is_borrowed());
         assert_eq!(map.get("x"), Some(&10));
         assert_eq!(map.get("y"), Some(&20));

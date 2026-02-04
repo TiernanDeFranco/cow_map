@@ -3,7 +3,7 @@
 use cow_map::cow_map;
 
 fn main() {
-    let mut config = cow_map!(i32 =>
+    let mut config = cow_map!(CONFIG: i32 =>
         "timeout" => 30,
         "retries" => 3,
         "port"    => 8080,
