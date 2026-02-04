@@ -6,7 +6,7 @@ description = "A map that starts as static PHF (compile-time) and promotes to Ha
 readme = "README.md"
 license = "Apache-2.0"
 repository = "https://github.com/TiernanDeFranco/cow_map"
-keywords = ["phf", "hashmap", "cow", "static", "cow_map", "cow_hashmap"]
+keywords = ["phf", "hashmap", "cow", "cow_map", "cow_hashmap"]
 categories = ["data-structures"]
 
 [dependencies]
